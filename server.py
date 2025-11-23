@@ -98,11 +98,17 @@ class UserManagementHandler(SimpleHTTPRequestHandler):
             'loginTime': str(Path.cwd())
         }
         
+        print(f"[REGISTER] New user registered: {email}")
+        print(f"[REGISTER] Token created: {token[:16]}...")
+        print(f"[REGISTER] Total sessions: {len(SESSIONS)}")
+        print(f"[REGISTER] Total users: {len(USERS_DB)}")
+        
         return self.send_json({
             'success': True,
             'message': '✅ Registration successful! Redirecting to profile...',
             'token': token,
-            'autoLogin': True
+            'autoLogin': True,
+            'email': email
         })
     
     def handle_login(self, data):
@@ -146,11 +152,22 @@ class UserManagementHandler(SimpleHTTPRequestHandler):
         """Handle profile fetch"""
         token = data.get('sessionToken', '').strip()
         
+        # Debug logging
+        print(f"[DEBUG] Profile request with token: {token[:16]}...")
+        print(f"[DEBUG] Available sessions: {len(SESSIONS)} total")
+        print(f"[DEBUG] Token in SESSIONS: {token in SESSIONS}")
+        
         if not token or token not in SESSIONS:
-            return self.send_json({'success': False, 'error': 'invalid_session'}, 401)
+            print(f"[ERROR] Invalid session for token: {token}")
+            return self.send_json({'success': False, 'error': 'invalid_session', 'message': 'Session not found'}, 401)
         
         session = SESSIONS[token]
-        email = session['email']
+        email = session.get('email')
+        
+        if not email or email not in USERS_DB:
+            print(f"[ERROR] Email {email} not found in database")
+            return self.send_json({'success': False, 'error': 'user_not_found', 'message': 'User not found'}, 404)
+        
         user = USERS_DB[email]
         
         return self.send_json({
