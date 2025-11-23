@@ -1,0 +1,55 @@
+# Apache Configuration for User Management System
+
+# Enable mod_rewrite
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /Guvi_project/
+</IfModule>
+
+# Enable CORS headers
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+    Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+</IfModule>
+
+# Deny access to sensitive files
+<FilesMatch "\.(env|sql|json)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Deny access to config directory
+<Directory "config">
+    Order Allow,Deny
+    Deny from all
+</Directory>
+
+# Compress output
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript
+</IfModule>
+
+# Set proper content types
+AddType application/json .json
+AddType text/javascript .js
+AddType text/css .css
+
+# Enable caching
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType text/javascript "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/gif "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+</IfModule>
+
+# Prevent directory listing
+Options -Indexes
+
+# Enable PHP short tags if needed
+<IfModule mod_php5.c>
+    php_flag short_open_tag On
+</IfModule>
